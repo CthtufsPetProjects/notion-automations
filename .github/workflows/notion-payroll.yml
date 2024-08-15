@@ -7,11 +7,16 @@ on:
 
 jobs:
   run-script:
-    runs-on: cthtuf/notion-automations:0.1
+    # runs-on: cthtuf/notion-automations:0.1
+    runs-on: self-hosted
     steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Pull Docker image
+      run: docker pull cthtuf/notion-automations:latest
     - name: Run calculate_payroll_per_shift script
       env:
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
         DATABASE_ID_SHIFTS: ${{ secrets.DATABASE_ID_SHIFTS }}
         DATABASE_ID_PAYROLL: ${{ secrets.DATABASE_ID_PAYROLL }}
-      run: ./scheduled/calculate_payroll_per_shift.py
+      run: docker run --rm -e NOTION_API_KEY=${{ secrets.NOTION_API_KEY }} -e DATABASE_ID_SHIFTS=${{ secrets.DATABASE_ID_SHIFTS }} -e DATABASE_ID_PAYROLL=${{ secrets.DATABASE_ID_PAYROLL }} cthtuf/notion-automations:latest python3 ./scheduled/calculate_payroll_per_shift.py
