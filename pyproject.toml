@@ -1,0 +1,106 @@
+[tool.poetry]
+name = "notion-automations"
+version = "0.1.0"
+description = "Bunch of scripts to automate business processes with Notion"
+authors = ["Sergey Yarlov <gdazeysinc@gmail.com>"]
+readme = "README.md"
+packages = [{include = "notion_automations"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+notion-client = "^2.2.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.8.0"
+autoflake = "^2.3.1"
+isort = "^5.13.2"
+black = "^24.8.0"
+flake8 = "^7.1.1"
+pyupgrade = "^3.17.0"
+flake8-pyproject = "^1.2.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.black]
+# https://github.com/psf/black
+target-version = ["py312"]
+line-length = 120
+color = true
+
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | env
+    | venv
+    | .venv
+)/
+'''
+
+[tool.isort]
+# https://github.com/timothycrosley/isort/
+py_version = 312
+
+known_typing = ["typing", "types", "typing_extensions", "mypy", "mypy_extensions"]
+sections = ["FUTURE", "TYPING", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "MAIN", "LOCALFOLDER"]
+default_section = "FIRSTPARTY"
+known_main = ["scheduled"]
+skip = ["__init__.py"]
+include_trailing_comma = true
+profile = "black"
+multi_line_output = 3
+indent = 4
+color_output = true
+
+
+[tool.autoflake]
+# return error code if changes are needed
+check = false
+# make changes to files instead of printing diffs
+in-place = true
+# drill down directories recursively
+recursive = true
+# exclude file/directory names that match these comma-separated globs
+exclude = ".venv,venv"
+# by default, only unused standard library imports are removed; specify a comma-separated list of additional
+# modules/packages
+#imports = "<IMPORTS>"
+# expand wildcard star imports with undefined names; this only triggers if there is only one star import in
+# the file; this is skipped if there are any uses of `__all__` or `del` in the file
+expand-star-imports = false
+# remove all unused imports (not just those from the standard library)
+remove-all-unused-imports = true
+# exclude __init__.py when removing unused imports
+ignore-init-module-imports = true
+# remove all duplicate keys in objects
+remove-duplicate-keys = true
+# remove unused variables
+remove-unused-variables = false
+# ignore all pass statements
+ignore-pass-statements = false
+# ignore pass statements after a newline ending on '"""'
+ignore-pass-after-docstring = true
+
+[tool.flake8]
+max-complexity = 6
+statistics = true
+max-line-length = 120
+doctests = true
+ignore = ["N999", "D100", "D104", "D106", "D401", "N999", "W503", "W504", "Q003", "B902", "P101", "P103", "N818",
+    "E203", "E731", "B017", "SIM114",
+]
+no-accept-encodings = true
+# exclude = []
+# Flake plugins:
+accept-encodings = "utf-8"

@@ -1,0 +1,17 @@
+name: Payroll Automation
+
+on:
+  schedule:
+  - cron: '0 0 * * *'  # Run every midnight
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: cthtuf/notion-automations:0.1
+    steps:
+    - name: Run calculate_payroll_per_shift script
+      env:
+        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        DATABASE_ID_SHIFTS: ${{ secrets.DATABASE_ID_SHIFTS }}
+        DATABASE_ID_PAYROLL: ${{ secrets.DATABASE_ID_PAYROLL }}
+      run: ./scheduled/calculate_payroll_per_shift.py

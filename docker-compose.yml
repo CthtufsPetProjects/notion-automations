@@ -1,0 +1,9 @@
+---
+version: "3.6"
+services:
+  automate:
+    image: notion-automations
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    env_file: ./config/.env
