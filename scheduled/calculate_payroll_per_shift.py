@@ -3,7 +3,7 @@
 """
 Don't forget to give permissions for integration for each notion database.
 """
-
+import datetime
 import logging
 import os
 
@@ -71,14 +71,15 @@ def filter_hanled_employees(date: str, employees: list[dict[str, str]]) -> list[
     return filter(lambda e: e["id"] not in handled_employee, employees)
 
 
-def get_employee_data(employee_id: str) -> (str, float):
+def get_employee_data(employee_id: str) -> (str, int, int):
     """Get employee"s rate from database."""
     try:
         employee_page = notion.pages.retrieve(employee_id)
         logger.debug("Got employee data for employee %s", employee_id)
         return (
             employee_page["properties"]["Name"]["title"][0]["text"]["content"],
-            employee_page["properties"]["Rate"]["number"],
+            employee_page["properties"]["RateWeekday"]["number"],
+            employee_page["properties"]["RateWeekend"]["number"],
         )
     except (IndexError, KeyError):
         # Person not found
@@ -154,19 +155,26 @@ def main():
     shifts = get_accepted_shifts()
     for shift in shifts:
         shift_id = shift["id"]
-        date = shift["properties"]["Date"]["date"].get("start")
+        date_str = shift["properties"]["Date"]["date"].get("start")
         employees = shift["properties"]["On-shift staff"]["relation"]
         if not employees:
             logger.warning("No employees set for shift. Can't calculate payroll")
             return
 
-        for employee in filter_hanled_employees(date, employees):
-            employee_name, employee_rate = get_employee_data(employee["id"])
+        for employee in filter_hanled_employees(date_str, employees):
+            employee_name, employee_rate_weekday, employee_rate_weekend = get_employee_data(employee["id"])
 
-            create_payroll_entry(employee["id"], date, shift_id, employee_name, employee_rate)
+            date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+            day_of_week = date.weekday()
+            if day_of_week < 5:
+                rate = employee_rate_weekday
+            else:
+                rate = employee_rate_weekend
+
+            create_payroll_entry(employee["id"], date_str, shift_id, employee_name, rate)
             logger.info("Handled %s", employee_name)
 
-        update_shift_status(shift_id, date)
+        update_shift_status(shift_id, date_str)
 
     logger.info("Finished calculation")
 
